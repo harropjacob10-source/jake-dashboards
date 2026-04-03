@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jake's Dashboards</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .cards {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 32px;
+            width: 340px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(99,102,241,0.12);
+            border-color: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eef2ff;
+            color: #6366f1;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #6366f1;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        footer {
+            margin-top: 48px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        footer a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Jake's Dashboards</h1>
+        <p>Built by <a href="https://github.com/harropjacob10-source" target="_blank" style="color:#6366f1;text-decoration:none;">Jake Harrop</a></p>
+    </header>
+
+    <div class="cards">
+        <a href="http://localhost:4444" class="card">
+            <div class="card-icon">📊</div>
+            <h2>Analytics Dashboard</h2>
+            <p>Real-time monitoring of Claude Code sessions — conversations, tool calls, activity heatmap, and agent analytics.</p>
+            <span class="card-badge"><span class="status-dot"></span> localhost:4444</span>
+        </a>
+
+        <a href="http://localhost:4445" class="card">
+            <div class="card-icon">🔌</div>
+            <h2>Plugin Manager</h2>
+            <p>Browse, filter and inspect all installed Claude Code skills and plugins — metadata, instructions, and resources.</p>
+            <span class="card-badge"><span class="status-dot"></span> localhost:4445</span>
+        </a>
+    </div>
+
+    <footer>
+        <a href="https://github.com/harropjacob10-source/jake-dashboards" target="_blank">github.com/harropjacob10-source/jake-dashboards</a>
+    </footer>
+
+</body>
+</html>
