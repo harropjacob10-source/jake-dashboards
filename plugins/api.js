@@ -10,7 +10,7 @@ const os = require('os');
 const CLAUDE_DIR = path.join(os.homedir(), '.claude');
 
 function parseMarkdownFrontmatter(content) {
-    const match = content.match(/^---\n([\s\S]*?)\n---/);
+    const match = content.replace(/\r\n/g, '\n').match(/^---\n([\s\S]*?)\n---/);
     if (!match) return { name: '', description: '' };
     const yaml = match[1];
     const name = (yaml.match(/^name:\s*(.+)$/m) || [])[1]?.trim().replace(/['"]/g, '') || '';
@@ -26,6 +26,7 @@ function readAgents() {
     if (!fs.existsSync(dir)) return [];
     return fs.readdirSync(dir)
         .filter(f => f.endsWith('.md'))
+        .sort()
         .map(f => {
             const content = fs.readFileSync(path.join(dir, f), 'utf8');
             const meta = parseMarkdownFrontmatter(content);
@@ -51,7 +52,7 @@ function readCommands() {
     const results = [];
     for (const { dir, scope } of dirs) {
         if (!fs.existsSync(dir)) continue;
-        fs.readdirSync(dir).filter(f => f.endsWith('.md')).forEach(f => {
+        fs.readdirSync(dir).filter(f => f.endsWith('.md')).sort().forEach(f => {
             const content = fs.readFileSync(path.join(dir, f), 'utf8');
             const meta = parseMarkdownFrontmatter(content);
             const name = meta.name || f.replace('.md', '');
@@ -75,6 +76,7 @@ function readSkills() {
     if (!fs.existsSync(dir)) return [];
     return fs.readdirSync(dir)
         .filter(f => fs.statSync(path.join(dir, f)).isDirectory())
+        .sort()
         .map(skillDir => {
             const skillPath = path.join(dir, skillDir);
             const skillMd = path.join(skillPath, 'SKILL.md');
@@ -119,11 +121,17 @@ function readPlugins() {
 function togglePlugin(name, enabled) {
     const installedPath = path.join(CLAUDE_DIR, 'plugins', 'installed_plugins.json');
     if (!fs.existsSync(installedPath)) return false;
-    const data = JSON.parse(fs.readFileSync(installedPath, 'utf8'));
-    if (!data[name]) return false;
-    data[name].enabled = enabled;
-    fs.writeFileSync(installedPath, JSON.stringify(data, null, 2));
-    return true;
+    try {
+        const data = JSON.parse(fs.readFileSync(installedPath, 'utf8'));
+        if (!data[name]) return false;
+        data[name].enabled = enabled;
+        const tmp = installedPath + '.tmp';
+        fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+        fs.renameSync(tmp, installedPath);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 module.exports = { readAgents, readCommands, readSkills, readPlugins, togglePlugin };

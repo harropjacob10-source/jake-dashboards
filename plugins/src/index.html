@@ -3,231 +3,565 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jake's Skills & Plugin Manager</title>
+    <title>Jake's Plugin Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --bg: #f8fafc;
-            --surface: #ffffff;
-            --surface2: #f1f5f9;
-            --border: #e2e8f0;
-            --text: #1e293b;
-            --text2: #64748b;
-            --accent: #6366f1;
-            --accent-light: #eef2ff;
-            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+            --bg: #050912;
+            --sidebar-bg: rgba(6,10,20,0.95);
+            --surface: rgba(255,255,255,0.035);
+            --surface-hover: rgba(255,255,255,0.06);
+            --surface-active: rgba(34,211,238,0.07);
+            --border: rgba(34,211,238,0.09);
+            --border-hover: rgba(34,211,238,0.3);
+            --accent: #22D3EE;
+            --accent-dim: rgba(34,211,238,0.1);
+            --text: #CBD5E1;
+            --text-bright: #F1F5F9;
+            --text-muted: #4E6080;
+            --text-dim: #7C93B0;
+
+            /* Type badge colours */
+            --skill-bg:   rgba(96,165,250,0.12);
+            --skill-fg:   #60A5FA;
+            --agent-bg:   rgba(167,139,250,0.12);
+            --agent-fg:   #A78BFA;
+            --command-bg: rgba(52,211,153,0.12);
+            --command-fg: #34D399;
+            --plugin-bg:  rgba(251,191,36,0.12);
+            --plugin-fg:  #FBBF24;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        html, body {
+            min-height: 100vh;
             background: var(--bg);
             color: var(--text);
-            min-height: 100vh;
+            font-family: 'Syne', sans-serif;
         }
 
-        .layout { display: flex; min-height: 100vh; }
+        /* Atmospheric background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 55% at 10% 5%, rgba(34,211,238,0.055) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 90% 95%, rgba(99,102,241,0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
 
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(rgba(148,163,184,0.04) 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Layout ─────────────────────────────────────────────── */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Sidebar ────────────────────────────────────────────── */
         .sidebar {
-            width: 240px;
-            background: var(--surface);
+            width: 232px;
+            background: var(--sidebar-bg);
             border-right: 1px solid var(--border);
-            padding: 24px 0;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 28px 0;
             position: fixed;
             top: 0; left: 0;
             height: 100vh;
             display: flex;
             flex-direction: column;
+            z-index: 10;
         }
 
-        .sidebar-brand {
+        .brand {
             padding: 0 20px 24px;
             border-bottom: 1px solid var(--border);
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
-        .sidebar-brand h1 { font-size: 1rem; font-weight: 700; color: var(--accent); }
-        .sidebar-brand p { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .brand-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(34,211,238,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .brand h1 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            letter-spacing: -0.01em;
+        }
+
+        .brand p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+            margin-left: 40px;
+        }
+
+        /* Nav items */
+        .nav-section {
+            padding: 0 10px;
+            flex: 1;
+        }
+
+        .nav-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.14em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
 
         .nav-item {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 20px;
+            padding: 9px 12px;
+            border-radius: 9px;
             cursor: pointer;
-            color: var(--text2);
-            font-size: 0.9rem;
-            border-left: 3px solid transparent;
-            transition: all 0.15s;
+            color: var(--text-dim);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            margin-bottom: 2px;
+            border: 1px solid transparent;
+            user-select: none;
         }
 
-        .nav-item:hover { background: var(--surface2); color: var(--text); }
-        .nav-item.active { color: var(--accent); background: var(--accent-light); border-left-color: var(--accent); font-weight: 500; }
+        .nav-item:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--surface-active);
+            border-color: rgba(34,211,238,0.15);
+            color: var(--accent);
+        }
+
+        .nav-icon { font-size: 0.9rem; width: 18px; text-align: center; }
 
         .nav-count {
             margin-left: auto;
-            background: var(--surface2);
-            color: var(--text2);
-            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            background: rgba(255,255,255,0.06);
+            color: var(--text-muted);
             padding: 2px 7px;
-            border-radius: 10px;
+            border-radius: 20px;
             min-width: 24px;
             text-align: center;
+            border: 1px solid rgba(255,255,255,0.04);
         }
 
-        .nav-item.active .nav-count { background: var(--accent-light); color: var(--accent); }
+        .nav-item.active .nav-count {
+            background: var(--accent-dim);
+            color: var(--accent);
+            border-color: rgba(34,211,238,0.15);
+        }
 
+        /* Sidebar footer */
         .sidebar-footer {
             margin-top: auto;
-            padding: 16px 20px;
+            padding: 18px 20px;
             border-top: 1px solid var(--border);
-            font-size: 0.75rem;
-            color: var(--text2);
         }
 
-        .sidebar-footer a { color: var(--accent); text-decoration: none; }
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+        }
 
-        .main { margin-left: 240px; flex: 1; padding: 32px; }
+        .live-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #34D399;
+            animation: glow-pulse 2.5s ease-in-out infinite;
+        }
 
-        .page-header { margin-bottom: 24px; }
-        .page-header h2 { font-size: 1.4rem; font-weight: 600; }
-        .page-header p { color: var(--text2); font-size: 0.9rem; margin-top: 4px; }
+        .home-link {
+            display: block;
+            margin-top: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            letter-spacing: 0.04em;
+            transition: color 0.2s;
+        }
+        .home-link:hover { color: var(--accent); }
 
-        .toolbar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
+        /* ── Main content ───────────────────────────────────────── */
+        .main {
+            margin-left: 232px;
+            flex: 1;
+            padding: 36px 36px 60px;
+            min-height: 100vh;
+        }
 
-        .search { flex: 1; max-width: 360px; position: relative; }
+        .page-header {
+            margin-bottom: 28px;
+        }
 
-        .search input {
+        .page-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-bright);
+        }
+
+        .page-header p {
+            margin-top: 5px;
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            max-width: 380px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-input {
             width: 100%;
-            padding: 8px 12px 8px 36px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--surface);
-            font-size: 0.875rem;
-            color: var(--text);
-            outline: none;
-            transition: border-color 0.15s;
-        }
-
-        .search input:focus { border-color: var(--accent); }
-        .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text2); font-size: 0.85rem; }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-
-        .card {
+            padding: 9px 14px 9px 36px;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 10px;
-            padding: 18px;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            transition: box-shadow 0.15s, border-color 0.15s;
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            backdrop-filter: blur(8px);
         }
 
-        .card:hover { box-shadow: var(--shadow-lg); border-color: #c7d2fe; }
+        .search-input::placeholder { color: var(--text-muted); }
+        .search-input:focus {
+            border-color: rgba(34,211,238,0.3);
+            background: rgba(255,255,255,0.05);
+        }
 
-        .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-        .card-name { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+        /* ── Card grid ──────────────────────────────────────────── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
 
-        .badge { font-size: 0.7rem; font-weight: 500; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
-        .badge-agent   { background: #ede9fe; color: #7c3aed; }
-        .badge-skill   { background: #dbeafe; color: #1d4ed8; }
-        .badge-command { background: #dcfce7; color: #15803d; }
-        .badge-plugin  { background: #fef3c7; color: #b45309; }
+        .card {
+            position: relative;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            overflow: hidden;
+            transition: transform 0.22s cubic-bezier(0.16,1,0.3,1),
+                        border-color 0.22s ease,
+                        box-shadow 0.22s ease;
+            animation: fadeIn 0.4s ease both;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(34,211,238,0.06);
+        }
+        .card:hover::before { opacity: 1; }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .card-name {
+            font-size: 0.93rem;
+            font-weight: 600;
+            color: var(--text-bright);
+            letter-spacing: -0.01em;
+            line-height: 1.3;
+        }
+
+        /* Type badges */
+        .badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.64rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            padding: 3px 9px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .badge-skill   { background: var(--skill-bg);   color: var(--skill-fg); }
+        .badge-agent   { background: var(--agent-bg);   color: var(--agent-fg); }
+        .badge-command { background: var(--command-bg); color: var(--command-fg); }
+        .badge-plugin  { background: var(--plugin-bg);  color: var(--plugin-fg); }
 
         .card-desc {
-            font-size: 0.825rem;
-            color: var(--text2);
-            line-height: 1.5;
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+            font-weight: 400;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            flex: 1;
         }
 
-        .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
-        .card-meta { font-size: 0.75rem; color: var(--text2); }
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
 
-        .toggle { position: relative; width: 36px; height: 20px; cursor: pointer; }
-        .toggle input { opacity: 0; width: 0; height: 0; }
-        .toggle-track { position: absolute; inset: 0; background: var(--border); border-radius: 20px; transition: background 0.2s; }
-        .toggle input:checked + .toggle-track { background: var(--accent); }
-        .toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: white; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.2s; }
-        .toggle input:checked ~ .toggle-thumb { transform: translateX(16px); }
+        .card-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+        }
 
-        .loading, .empty { text-align: center; color: var(--text2); padding: 60px 0; font-size: 0.95rem; }
+        /* Toggle switch */
+        .toggle {
+            position: relative;
+            width: 34px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            transition: all 0.2s;
+        }
+        .toggle input:checked + .toggle-track {
+            background: var(--accent-dim);
+            border-color: rgba(34,211,238,0.3);
+        }
+        .toggle-thumb {
+            position: absolute;
+            top: 2px; left: 2px;
+            width: 12px; height: 12px;
+            background: var(--text-dim);
+            border-radius: 50%;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+        .toggle input:checked ~ .toggle-thumb {
+            transform: translateX(16px);
+            background: var(--accent);
+        }
 
-        .loading-spinner {
-            width: 28px; height: 28px;
-            border: 3px solid var(--border);
+        .active-indicator {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: #34D399;
+            letter-spacing: 0.06em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .active-indicator::before {
+            content: '';
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: #34D399;
+            animation: glow-pulse 2.5s ease-in-out infinite;
+        }
+
+        /* States */
+        .loading, .empty {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 80px 0;
+            font-size: 0.875rem;
+        }
+
+        .spinner {
+            width: 26px; height: 26px;
+            border: 2px solid rgba(34,211,238,0.1);
             border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
-            margin: 0 auto 12px;
+            margin: 0 auto 14px;
         }
 
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 28px; right: 28px;
+            background: rgba(15,23,42,0.95);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 11px 18px;
+            border-radius: 10px;
+            font-size: 0.84rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.22s ease;
+            z-index: 999;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        /* ── Animations ─────────────────────────────────────────── */
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .toast {
-            position: fixed; bottom: 24px; right: 24px;
-            background: var(--text); color: white;
-            padding: 10px 16px; border-radius: 8px;
-            font-size: 0.875rem; box-shadow: var(--shadow-lg);
-            opacity: 0; transform: translateY(8px);
-            transition: all 0.2s; z-index: 999;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .toast.show { opacity: 1; transform: translateY(0); }
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
+        }
     </style>
 </head>
 <body>
 
 <div class="layout">
     <aside class="sidebar">
-        <div class="sidebar-brand">
-            <h1>🧠 Jake's Skills</h1>
+        <div class="brand">
+            <div class="brand-logo">
+                <div class="brand-icon">🧠</div>
+                <h1>Jake's Skills</h1>
+            </div>
             <p>Claude Code Manager</p>
         </div>
-        <nav>
+
+        <nav class="nav-section">
+            <div class="nav-label">Browse</div>
             <div class="nav-item active" data-type="all" onclick="filterType('all')">
-                <span>⚡</span> All <span class="nav-count" id="count-all">0</span>
+                <span class="nav-icon">⚡</span> All
+                <span class="nav-count" id="count-all">0</span>
             </div>
             <div class="nav-item" data-type="skill" onclick="filterType('skill')">
-                <span>📘</span> Skills <span class="nav-count" id="count-skill">0</span>
+                <span class="nav-icon">📘</span> Skills
+                <span class="nav-count" id="count-skill">0</span>
             </div>
             <div class="nav-item" data-type="agent" onclick="filterType('agent')">
-                <span>🤖</span> Agents <span class="nav-count" id="count-agent">0</span>
+                <span class="nav-icon">🤖</span> Agents
+                <span class="nav-count" id="count-agent">0</span>
             </div>
             <div class="nav-item" data-type="command" onclick="filterType('command')">
-                <span>⌨️</span> Commands <span class="nav-count" id="count-command">0</span>
+                <span class="nav-icon">⌨️</span> Commands
+                <span class="nav-count" id="count-command">0</span>
             </div>
             <div class="nav-item" data-type="plugin" onclick="filterType('plugin')">
-                <span>🔌</span> Plugins <span class="nav-count" id="count-plugin">0</span>
+                <span class="nav-icon">🔌</span> Plugins
+                <span class="nav-count" id="count-plugin">0</span>
             </div>
         </nav>
+
         <div class="sidebar-footer">
-            Built by <a href="https://github.com/harropjacob10-source" target="_blank">Jake Harrop</a>
+            <div class="live-indicator">
+                <span class="live-dot"></span>
+                Live — auto-updates
+            </div>
+            <a href="http://localhost:4000" class="home-link">← Back to home</a>
         </div>
     </aside>
 
     <main class="main">
         <div class="page-header">
-            <h2 id="page-title">All Skills & Plugins</h2>
+            <h2 id="page-title">All Skills &amp; Plugins</h2>
             <p id="page-subtitle">Everything installed in your Claude Code environment</p>
         </div>
+
         <div class="toolbar">
-            <div class="search">
+            <div class="search-wrap">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="search" placeholder="Search..." oninput="renderGrid()">
+                <input class="search-input" type="text" id="search" placeholder="Search by name or description…" oninput="renderGrid()">
             </div>
         </div>
+
         <div id="grid" class="grid">
             <div class="loading">
-                <div class="loading-spinner"></div>
-                Loading your Claude Code environment...
+                <div class="spinner"></div>
+                Loading your Claude Code environment…
             </div>
         </div>
     </main>
@@ -239,12 +573,21 @@
 let allItems = [];
 let activeType = 'all';
 
+function esc(s) {
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 const titles = {
-    all:     ['All Skills & Plugins', 'Everything installed in your Claude Code environment'],
-    skill:   ['Skills', 'Loaded automatically when relevant triggers are detected'],
-    agent:   ['Agents', 'Specialised subagents available via the Agent tool'],
-    command: ['Commands', 'Slash commands available in Claude Code'],
-    plugin:  ['Plugins', 'Installed Claude Code plugins — toggle to enable or disable'],
+    all:     ['All Skills & Plugins',   'Everything installed in your Claude Code environment'],
+    skill:   ['Skills',                 'Loaded automatically when relevant triggers are detected'],
+    agent:   ['Agents',                 'Specialised subagents available via the Agent tool'],
+    command: ['Commands',               'Slash commands available in Claude Code'],
+    plugin:  ['Plugins',               'Installed Claude Code plugins — toggle to enable or disable'],
 };
 
 async function load() {
@@ -254,8 +597,8 @@ async function load() {
         allItems = [...data.skills, ...data.agents, ...data.commands, ...data.plugins];
         updateCounts();
         renderGrid();
-    } catch (e) {
-        document.getElementById('grid').innerHTML = '<div class="empty">Failed to load. Make sure the server is running.</div>';
+    } catch {
+        document.getElementById('grid').innerHTML = '<div class="empty">Failed to load — make sure the server is running.</div>';
     }
 }
 
@@ -286,28 +629,35 @@ function renderGrid() {
         return;
     }
 
-    document.getElementById('grid').innerHTML = items.map(item => {
+    document.getElementById('grid').innerHTML = items.map((item, idx) => {
         const typeLabel = item.type.charAt(0).toUpperCase() + item.type.slice(1);
         const meta = item.fileCount ? `${item.fileCount} files`
                    : item.scope    ? item.scope
                    : item.version  ? `v${item.version}` : '';
 
+        const safeId   = esc(item.id);
+        const safeName = esc(item.name);
+        const safeDesc = esc(item.description);
+        const safeMeta = esc(meta);
+        const safeType = esc(item.type);
+        const safeTypeLabel = esc(typeLabel);
+
         const control = item.type === 'plugin'
             ? `<label class="toggle" title="${item.active ? 'Disable' : 'Enable'}" onclick="event.stopPropagation()">
-                   <input type="checkbox" ${item.active ? 'checked' : ''} onchange="togglePlugin('${item.id}', this.checked)">
+                   <input type="checkbox" ${item.active ? 'checked' : ''} onchange="togglePlugin(${JSON.stringify(safeId)}, this.checked)">
                    <span class="toggle-track"></span>
                    <span class="toggle-thumb"></span>
                </label>`
-            : `<span style="font-size:0.75rem;color:#16a34a;font-weight:500;">● Active</span>`;
+            : `<span class="active-indicator">Active</span>`;
 
-        return `<div class="card">
+        return `<div class="card" style="animation-delay:${idx * 0.03}s">
             <div class="card-top">
-                <span class="card-name">${item.name}</span>
-                <span class="badge badge-${item.type}">${typeLabel}</span>
+                <span class="card-name">${safeName}</span>
+                <span class="badge badge-${safeType}">${safeTypeLabel}</span>
             </div>
-            <p class="card-desc">${item.description}</p>
+            <p class="card-desc">${safeDesc}</p>
             <div class="card-footer">
-                <span class="card-meta">${meta}</span>
+                <span class="card-meta">${safeMeta}</span>
                 ${control}
             </div>
         </div>`;
@@ -338,6 +688,17 @@ function showToast(msg) {
 }
 
 load();
+
+// Auto-update via SSE
+function watchForUpdates() {
+    const es = new EventSource('/api/watch');
+    es.onmessage = () => load();
+    es.onerror = () => {
+        es.close();
+        setTimeout(watchForUpdates, 3000);
+    };
+}
+watchForUpdates();
 </script>
 </body>
 </html>

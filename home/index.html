@@ -4,150 +4,319 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jake's Dashboards</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #f8fafc;
-            color: #1e293b;
+        :root {
+            --bg: #050912;
+            --accent: #22D3EE;
+            --accent-dim: rgba(34,211,238,0.1);
+            --border: rgba(34,211,238,0.1);
+            --border-hover: rgba(34,211,238,0.4);
+            --surface: rgba(255,255,255,0.035);
+            --surface-hover: rgba(255,255,255,0.06);
+            --text: #E2E8F0;
+            --text-muted: #4E6080;
+            --text-dim: #94A3B8;
+        }
+
+        html, body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Atmospheric background */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-layer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 55% at 15% 8%, rgba(34,211,238,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 85% 92%, rgba(99,102,241,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse 80% 80% at 50% 50%, rgba(15,23,42,0.5) 0%, transparent 100%);
+        }
+
+        /* Dot grid */
+        .bg-layer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(148,163,184,0.06) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
+            padding: 60px 20px;
         }
 
-        header {
+        /* ── Header ─────────────────────────────────────────────── */
+        .header {
             text-align: center;
-            margin-bottom: 48px;
+            margin-bottom: 72px;
+            animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
-        header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 8px;
+        .eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 400;
+            letter-spacing: 0.22em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            opacity: 0.75;
         }
 
-        header p {
-            color: #64748b;
-            font-size: 1rem;
+        .eyebrow::before, .eyebrow::after {
+            content: '';
+            width: 40px;
+            height: 1px;
+            background: currentColor;
+            opacity: 0.4;
         }
 
+        .header h1 {
+            font-size: clamp(2.8rem, 7vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.02;
+            letter-spacing: -0.03em;
+            background: linear-gradient(140deg, #F1F5F9 0%, #94A3B8 55%, #22D3EE 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-sub {
+            margin-top: 18px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .header-sub a {
+            color: var(--accent);
+            text-decoration: none;
+            opacity: 0.75;
+            transition: opacity 0.2s;
+        }
+        .header-sub a:hover { opacity: 1; }
+
+        /* ── Cards ──────────────────────────────────────────────── */
         .cards {
             display: flex;
-            gap: 24px;
+            gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
-            max-width: 800px;
             width: 100%;
+            max-width: 800px;
         }
 
         .card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 32px;
-            width: 340px;
+            position: relative;
+            width: 372px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 34px;
             text-decoration: none;
-            color: inherit;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+            color: var(--text);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            overflow: hidden;
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                        border-color 0.28s ease,
+                        box-shadow 0.28s ease;
+        }
+
+        .card:nth-child(1) { animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.12s both; }
+        .card:nth-child(2) { animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.22s both; }
+
+        /* Gradient top border on hover */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* Inner glow on hover */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 120px;
+            background: radial-gradient(ellipse 70% 80% at 50% -20%, rgba(34,211,238,0.08), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
         }
 
         .card:hover {
-            box-shadow: 0 8px 24px rgba(99,102,241,0.12);
-            border-color: #6366f1;
-            transform: translateY(-2px);
+            border-color: var(--border-hover);
+            transform: translateY(-5px);
+            box-shadow:
+                0 24px 48px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(34,211,238,0.08),
+                0 0 60px rgba(34,211,238,0.04);
         }
+        .card:hover::before { opacity: 1; }
+        .card:hover::after  { opacity: 1; }
 
         .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 16px;
+            width: 50px;
+            height: 50px;
+            border-radius: 13px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(34,211,238,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            margin-bottom: 22px;
+            transition: transform 0.28s cubic-bezier(0.16,1,0.3,1);
         }
+        .card:hover .card-icon { transform: scale(1.08); }
 
         .card h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #1e293b;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #F1F5F9;
+            margin-bottom: 10px;
         }
 
         .card p {
-            font-size: 0.9rem;
-            color: #64748b;
-            line-height: 1.6;
-            margin-bottom: 20px;
+            font-size: 0.855rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 28px;
+            font-weight: 400;
         }
 
-        .card-badge {
-            display: inline-flex;
+        .card-footer {
+            display: flex;
             align-items: center;
-            gap: 6px;
-            background: #eef2ff;
-            color: #6366f1;
-            font-size: 0.8rem;
-            font-weight: 500;
-            padding: 4px 10px;
-            border-radius: 20px;
+            justify-content: space-between;
         }
 
-        .status-dot {
-            width: 7px;
-            height: 7px;
+        .port-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--accent);
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .port-dot {
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
-            background: #6366f1;
-            animation: pulse 2s infinite;
+            background: var(--accent);
+            animation: glow-pulse 2.2s ease-in-out infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+        .card-arrow {
+            font-size: 1rem;
+            color: var(--text-muted);
+            transition: all 0.25s ease;
+        }
+        .card:hover .card-arrow {
+            color: var(--accent);
+            transform: translateX(5px);
         }
 
+        /* ── Footer ─────────────────────────────────────────────── */
         footer {
-            margin-top: 48px;
-            color: #94a3b8;
-            font-size: 0.85rem;
+            margin-top: 72px;
             text-align: center;
+            animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.35s both;
         }
 
         footer a {
-            color: #6366f1;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.07em;
+            color: var(--text-muted);
             text-decoration: none;
+            transition: color 0.2s;
+        }
+        footer a:hover { color: var(--accent); }
+
+        /* ── Animations ─────────────────────────────────────────── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        footer a:hover { text-decoration: underline; }
+        @keyframes glow-pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--accent); }
+            50%       { opacity: 0.4; box-shadow: none; }
+        }
     </style>
 </head>
 <body>
+    <div class="bg-layer"></div>
 
-    <header>
-        <h1>Jake's Dashboards</h1>
-        <p>Built by <a href="https://github.com/harropjacob10-source" target="_blank" style="color:#6366f1;text-decoration:none;">Jake Harrop</a></p>
-    </header>
+    <div class="container">
+        <header class="header">
+            <div class="eyebrow">Claude Code · Command Center</div>
+            <h1>Jake's Dashboards</h1>
+            <p class="header-sub">Built by <a href="https://github.com/harropjacob10-source" target="_blank">Jake Harrop</a></p>
+        </header>
 
-    <div class="cards">
-        <a href="http://localhost:4444" class="card">
-            <div class="card-icon">📊</div>
-            <h2>Analytics Dashboard</h2>
-            <p>Real-time monitoring of Claude Code sessions — conversations, tool calls, activity heatmap, and agent analytics.</p>
-            <span class="card-badge"><span class="status-dot"></span> localhost:4444</span>
-        </a>
+        <div class="cards">
+            <a href="http://localhost:4444" class="card">
+                <div class="card-icon">📊</div>
+                <h2>Analytics Dashboard</h2>
+                <p>Real-time monitoring of Claude Code sessions — conversations, tool calls, activity heatmap, and agent analytics.</p>
+                <div class="card-footer">
+                    <span class="port-tag"><span class="port-dot"></span>localhost:4444</span>
+                    <span class="card-arrow">→</span>
+                </div>
+            </a>
 
-        <a href="http://localhost:4445" class="card">
-            <div class="card-icon">🔌</div>
-            <h2>Plugin Manager</h2>
-            <p>Browse, filter and inspect all installed Claude Code skills and plugins — metadata, instructions, and resources.</p>
-            <span class="card-badge"><span class="status-dot"></span> localhost:4445</span>
-        </a>
+            <a href="http://localhost:4445" class="card">
+                <div class="card-icon">🔌</div>
+                <h2>Plugin Manager</h2>
+                <p>Browse, filter and inspect all installed Claude Code skills and plugins — metadata, instructions, and resources.</p>
+                <div class="card-footer">
+                    <span class="port-tag"><span class="port-dot"></span>localhost:4445</span>
+                    <span class="card-arrow">→</span>
+                </div>
+            </a>
+        </div>
+
+        <footer>
+            <a href="https://github.com/harropjacob10-source/jake-dashboards" target="_blank">github.com/harropjacob10-source/jake-dashboards</a>
+        </footer>
     </div>
-
-    <footer>
-        <a href="https://github.com/harropjacob10-source/jake-dashboards" target="_blank">github.com/harropjacob10-source/jake-dashboards</a>
-    </footer>
-
 </body>
 </html>

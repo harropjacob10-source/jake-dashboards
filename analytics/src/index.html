@@ -8321,6 +8321,153 @@
         }
 
     </style>
+
+    <!-- ── Design System Override ───────────────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ── Dark theme — Deep Space ── */
+        [data-theme="dark"] {
+            --bg-primary:       #050912 !important;
+            --bg-secondary:     rgba(255,255,255,0.035) !important;
+            --bg-tertiary:      rgba(255,255,255,0.055) !important;
+            --border-primary:   rgba(34,211,238,0.1) !important;
+            --border-secondary: rgba(34,211,238,0.06) !important;
+            --text-primary:     #CBD5E1 !important;
+            --text-secondary:   #4E6080 !important;
+            --text-accent:      #22D3EE !important;
+            --text-success:     #34D399 !important;
+            --text-warning:     #FBBF24 !important;
+            --text-error:       #F87171 !important;
+            --text-info:        #60A5FA !important;
+            --shadow-primary:   rgba(0,0,0,0.5) !important;
+            --shadow-secondary: rgba(0,9,26,0.9) !important;
+        }
+
+        /* ── Light theme — Clean Slate ── */
+        :root,
+        [data-theme="light"] {
+            --bg-primary:       #F0F4F8 !important;
+            --bg-secondary:     #FFFFFF !important;
+            --bg-tertiary:      #E8EDF2 !important;
+            --border-primary:   rgba(34,211,238,0.2) !important;
+            --border-secondary: rgba(34,211,238,0.1) !important;
+            --text-primary:     #1E293B !important;
+            --text-secondary:   #64748B !important;
+            --text-accent:      #0891B2 !important;
+            --text-success:     #059669 !important;
+            --text-warning:     #D97706 !important;
+            --text-error:       #DC2626 !important;
+            --text-info:        #2563EB !important;
+            --shadow-primary:   rgba(0,0,0,0.07) !important;
+            --shadow-secondary: rgba(0,0,0,0.14) !important;
+        }
+
+        /* Font override */
+        body {
+            font-family: 'Syne', sans-serif !important;
+        }
+
+        /* Dark background — scoped so light mode works */
+        [data-theme="dark"] {
+            background: #050912 !important;
+        }
+
+        /* Code/mono elements keep JetBrains Mono */
+        .terminal, pre, code, .stat-value, .stat-label,
+        .github-star-btn, .terminal-title,
+        [class*="mono"], [class*="code"], [class*="token"] {
+            font-family: 'JetBrains Mono', monospace !important;
+        }
+
+        /* Atmospheric background — dark only */
+        [data-theme="dark"]::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 55% at 10% 5%, rgba(34,211,238,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 90% 95%, rgba(99,102,241,0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        [data-theme="dark"]::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(rgba(148,163,184,0.04) 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Light mode subtle texture */
+        [data-theme="light"]::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 55% at 10% 5%, rgba(8,145,178,0.04) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 90% 95%, rgba(99,102,241,0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Ensure content renders above bg layers */
+        #app, .mobile-menu-btn, .mobile-overlay, .global-theme-toggle {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Override hardcoded dark colours from original stylesheet */
+        * {
+            --hc-border: rgba(34,211,238,0.1);
+            --hc-bg: rgba(255,255,255,0.04);
+        }
+
+        /* Hardcoded colour overrides */
+        [style*="background: #21262d"],
+        [style*="background:#21262d"],
+        [style*="background: #161b22"],
+        [style*="background:#161b22"] {
+            background: rgba(255,255,255,0.04) !important;
+        }
+
+        /* Popovers */
+        .token-popover, .claude-sessions-popover,
+        [class*="popover"], [class*="tooltip"], [class*="modal"] {
+            background: rgba(6,12,28,0.97) !important;
+            border-color: rgba(34,211,238,0.15) !important;
+            backdrop-filter: blur(12px) !important;
+        }
+
+        /* Sidebar */
+        .app-sidebar,
+        [class*="sidebar"],
+        [id*="sidebar"] {
+            background: rgba(4,6,18,0.96) !important;
+            border-right-color: rgba(34,211,238,0.08) !important;
+            backdrop-filter: blur(20px) !important;
+        }
+
+        /* Cards and panels */
+        [class*="card"], [class*="panel"], [class*="widget"],
+        [class*="chart-container"], [class*="stat-card"],
+        [class*="heatmap"] {
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+        }
+
+        /* Status dot keep accent colour */
+        .status-dot { background: #34D399 !important; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.15); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(34,211,238,0.3); }
+    </style>
 </head>
 <body>
     <!-- Mobile Menu Button -->
@@ -8514,43 +8661,13 @@
             }
         });
         
-        // Theme switching functionality
-        function initializeTheme() {
-            const themeSwitch = document.getElementById('themeSwitch');
-            const themeSwitchThumb = document.getElementById('themeSwitchThumb');
-            const body = document.body;
-            
-            // Load saved theme — default to light
-            const savedTheme = localStorage.getItem('claude-analytics-theme') || 'light';
-            if (savedTheme === 'dark') {
-                body.setAttribute('data-theme', 'dark');
-                themeSwitchThumb.querySelector('.theme-switch-icon').textContent = '🌙';
-            } else {
-                themeSwitchThumb.classList.add('light');
-                themeSwitchThumb.querySelector('.theme-switch-icon').textContent = '☀️';
-            }
-            
-            // Theme switch handler
-            themeSwitch.addEventListener('click', function() {
-                const isDark = body.getAttribute('data-theme') === 'dark';
-                const newTheme = isDark ? 'light' : 'dark';
-
-                if (newTheme === 'dark') {
-                    body.setAttribute('data-theme', 'dark');
-                    themeSwitchThumb.classList.remove('light');
-                    themeSwitchThumb.querySelector('.theme-switch-icon').textContent = '🌙';
-                } else {
-                    body.removeAttribute('data-theme');
-                    themeSwitchThumb.classList.add('light');
-                    themeSwitchThumb.querySelector('.theme-switch-icon').textContent = '☀️';
-                }
-
-                localStorage.setItem('claude-analytics-theme', newTheme);
-            });
-        }
-        
-        // Initialize theme immediately
-        initializeTheme();
+        // Theme init — set attribute immediately so CSS vars apply before paint.
+        // HeaderComponent handles the toggle click; this just ensures the body
+        // attribute is set before any component renders.
+        (function() {
+            const saved = localStorage.getItem('claude-analytics-theme') || 'dark';
+            document.body.setAttribute('data-theme', saved);
+        })();
         
         // Results Modal Management
         window.showResultsModal = function(contentId) {
