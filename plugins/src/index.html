@@ -3,324 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jake's Plugin Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Jake's Skills & Plugin Manager</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --surface2: #f1f5f9;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text2: #64748b;
+            --accent: #6366f1;
+            --accent-light: #eef2ff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .layout { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 240px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px 0;
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-brand {
+            padding: 0 20px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-brand h1 { font-size: 1rem; font-weight: 700; color: var(--accent); }
+        .sidebar-brand p { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            color: var(--text2);
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .nav-item:hover { background: var(--surface2); color: var(--text); }
+        .nav-item.active { color: var(--accent); background: var(--accent-light); border-left-color: var(--accent); font-weight: 500; }
+
+        .nav-count {
+            margin-left: auto;
+            background: var(--surface2);
+            color: var(--text2);
+            font-size: 0.75rem;
+            padding: 2px 7px;
+            border-radius: 10px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .nav-item.active .nav-count { background: var(--accent-light); color: var(--accent); }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            font-size: 0.75rem;
+            color: var(--text2);
+        }
+
+        .sidebar-footer a { color: var(--accent); text-decoration: none; }
+
+        .main { margin-left: 240px; flex: 1; padding: 32px; }
+
+        .page-header { margin-bottom: 24px; }
+        .page-header h2 { font-size: 1.4rem; font-weight: 600; }
+        .page-header p { color: var(--text2); font-size: 0.9rem; margin-top: 4px; }
+
+        .toolbar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
+
+        .search { flex: 1; max-width: 360px; position: relative; }
+
+        .search input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            font-size: 0.875rem;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .search input:focus { border-color: var(--accent); }
+        .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text2); font-size: 0.85rem; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: box-shadow 0.15s, border-color 0.15s;
+        }
+
+        .card:hover { box-shadow: var(--shadow-lg); border-color: #c7d2fe; }
+
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .card-name { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+
+        .badge { font-size: 0.7rem; font-weight: 500; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+        .badge-agent   { background: #ede9fe; color: #7c3aed; }
+        .badge-skill   { background: #dbeafe; color: #1d4ed8; }
+        .badge-command { background: #dcfce7; color: #15803d; }
+        .badge-plugin  { background: #fef3c7; color: #b45309; }
+
+        .card-desc {
+            font-size: 0.825rem;
+            color: var(--text2);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+        .card-meta { font-size: 0.75rem; color: var(--text2); }
+
+        .toggle { position: relative; width: 36px; height: 20px; cursor: pointer; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .toggle-track { position: absolute; inset: 0; background: var(--border); border-radius: 20px; transition: background 0.2s; }
+        .toggle input:checked + .toggle-track { background: var(--accent); }
+        .toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: white; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.2s; }
+        .toggle input:checked ~ .toggle-thumb { transform: translateX(16px); }
+
+        .loading, .empty { text-align: center; color: var(--text2); padding: 60px 0; font-size: 0.95rem; }
+
+        .loading-spinner {
+            width: 28px; height: 28px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast {
+            position: fixed; bottom: 24px; right: 24px;
+            background: var(--text); color: white;
+            padding: 10px 16px; border-radius: 8px;
+            font-size: 0.875rem; box-shadow: var(--shadow-lg);
+            opacity: 0; transform: translateY(8px);
+            transition: all 0.2s; z-index: 999;
+        }
+
+        .toast.show { opacity: 1; transform: translateY(0); }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <span class="logo-icon">🎯</span>
-                    <span class="logo-text">Jake's Skills</span>
-                </div>
-                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-                    <span class="toggle-icon">☰</span>
-                </button>
+
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h1>🧠 Jake's Skills</h1>
+            <p>Claude Code Manager</p>
+        </div>
+        <nav>
+            <div class="nav-item active" data-type="all" onclick="filterType('all')">
+                <span>⚡</span> All <span class="nav-count" id="count-all">0</span>
             </div>
-
-            <div class="sidebar-stats">
-                <div class="sidebar-stat">
-                    <span class="stat-number" id="sidebarTotalSkills">-</span>
-                    <span class="stat-text">Total Skills</span>
-                </div>
-                <div class="sidebar-stat">
-                    <span class="stat-number" id="sidebarPersonalSkills">-</span>
-                    <span class="stat-text">Personal</span>
-                </div>
+            <div class="nav-item" data-type="skill" onclick="filterType('skill')">
+                <span>📘</span> Skills <span class="nav-count" id="count-skill">0</span>
             </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-section-header">
-                    <span class="section-title">Filter by Source</span>
-                </div>
-                <div class="source-filters">
-                    <button class="source-filter-btn active" data-filter="all">
-                        All Sources
-                    </button>
-                    <button class="source-filter-btn" data-filter="personal">
-                        Personal
-                    </button>
-                    <button class="source-filter-btn" data-filter="project">
-                        Project
-                    </button>
-                    <button class="source-filter-btn" data-filter="plugin">
-                        Plugin
-                    </button>
-                </div>
+            <div class="nav-item" data-type="agent" onclick="filterType('agent')">
+                <span>🤖</span> Agents <span class="nav-count" id="count-agent">0</span>
             </div>
-
-            <div class="sidebar-footer">
-                <a href="https://docs.claude.com/en/docs/agents-and-tools/agent-skills" target="_blank" class="sidebar-link">
-                    <span class="link-icon">📚</span>
-                    <span class="link-text">Skills Documentation</span>
-                </a>
-                <a href="https://github.com/harropjacob10-source" target="_blank" class="sidebar-link">
-                    <span class="link-icon">⭐</span>
-                    <span class="link-text">GitHub — Jake Harrop</span>
-                </a>
+            <div class="nav-item" data-type="command" onclick="filterType('command')">
+                <span>⌨️</span> Commands <span class="nav-count" id="count-command">0</span>
             </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <!-- Top Bar -->
-            <header class="top-bar">
-                <div class="top-bar-left">
-                    <h1 class="page-title">
-                        <span class="title-icon">🧠</span>
-                        <span id="currentViewName">All Skills</span>
-                    </h1>
-                    <div class="breadcrumb" id="breadcrumb"></div>
-                </div>
-                <div class="top-bar-right">
-                    <div class="search-box">
-                        <span class="search-icon">🔍</span>
-                        <input
-                            type="text"
-                            id="skillSearch"
-                            placeholder="Search skills..."
-                            class="search-input"
-                        >
-                    </div>
-                    <div class="view-controls">
-                        <button class="refresh-btn" id="refreshBtn" title="Refresh data">
-                            <span class="refresh-icon">🔄</span>
-                        </button>
-                        <button class="view-btn active" data-view="grid" title="Grid view">
-                            <span class="view-icon">▦</span>
-                        </button>
-                        <button class="view-btn" data-view="list" title="List view">
-                            <span class="view-icon">☰</span>
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Filters Bar -->
-            <div class="filters-bar">
-                <div class="filter-group">
-                    <button class="filter-chip active" data-filter="all">
-                        All Skills
-                        <span class="chip-badge" id="countAll">0</span>
-                    </button>
-                    <button class="filter-chip" data-filter="personal">
-                        <span class="status-dot personal"></span>
-                        Personal
-                        <span class="chip-badge" id="countPersonal">0</span>
-                    </button>
-                    <button class="filter-chip" data-filter="project">
-                        <span class="status-dot project"></span>
-                        Project
-                        <span class="chip-badge" id="countProject">0</span>
-                    </button>
-                    <button class="filter-chip" data-filter="plugin">
-                        <span class="status-dot plugin"></span>
-                        Plugin
-                        <span class="chip-badge" id="countPlugin">0</span>
-                    </button>
-                </div>
-                <div class="sort-controls">
-                    <label for="sortSelect" class="sort-label">Sort by:</label>
-                    <select id="sortSelect" class="sort-select">
-                        <option value="name">Name</option>
-                        <option value="files">File Count</option>
-                        <option value="modified">Last Modified</option>
-                    </select>
-                </div>
+            <div class="nav-item" data-type="plugin" onclick="filterType('plugin')">
+                <span>🔌</span> Plugins <span class="nav-count" id="count-plugin">0</span>
             </div>
+        </nav>
+        <div class="sidebar-footer">
+            Built by <a href="https://github.com/harropjacob10-source" target="_blank">Jake Harrop</a>
+        </div>
+    </aside>
 
-            <!-- Skills Grid/List -->
-            <div class="skills-container" id="skillsContainer">
-                <div class="content-loading">
-                    <div class="spinner-large"></div>
-                    <p class="loading-text">Loading skills...</p>
-                </div>
-            </div>
-
-            <!-- Empty State -->
-            <div class="empty-state-container" id="emptyState" style="display: none;">
-                <div class="empty-state">
-                    <div class="empty-icon">🎯</div>
-                    <h2 class="empty-title">No skills found</h2>
-                    <p class="empty-description" id="emptyDescription">
-                        Try adjusting your filters or search terms
-                    </p>
-                    <button class="btn-primary" id="clearFiltersBtn" style="display: none;">
-                        Clear Filters
-                    </button>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Skill Detail Modal -->
-    <div class="modal-overlay" id="skillModal">
-        <div class="modal-container skill-modal">
-            <div class="modal-header">
-                <div class="modal-title-section">
-                    <h2 class="modal-title" id="modalSkillName">Skill Name</h2>
-                    <div class="modal-badges">
-                        <span class="source-badge" id="modalSourceBadge">Personal</span>
-                    </div>
-                </div>
-                <button class="modal-close" id="closeModal" aria-label="Close modal">
-                    ✕
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <!-- Skills Loading Levels -->
-                <div class="skill-levels-section">
-                    <h3 class="section-title">
-                        <span class="section-icon">📊</span>
-                        Progressive Context Loading
-                    </h3>
-                    <p class="section-description">
-                        Skills load content in three levels, minimizing context usage while maximizing flexibility
-                    </p>
-
-                    <div class="loading-levels">
-                        <!-- Level 1: Metadata -->
-                        <div class="level-card level-1" data-level="1">
-                            <div class="level-header">
-                                <div class="level-number">1</div>
-                                <div class="level-info">
-                                    <div class="level-title">METADATA</div>
-                                    <div class="level-timing">Always loaded (at startup)</div>
-                                </div>
-                                <div class="level-cost">~100 tokens</div>
-                            </div>
-                            <div class="level-content">
-                                <div class="level-description">
-                                    Name and description from YAML frontmatter for Skill discovery
-                                </div>
-                                <div class="metadata-display">
-                                    <div class="metadata-field">
-                                        <span class="field-label">name:</span>
-                                        <span class="field-value" id="metadataName">-</span>
-                                    </div>
-                                    <div class="metadata-field">
-                                        <span class="field-label">description:</span>
-                                        <span class="field-value" id="metadataDescription">-</span>
-                                    </div>
-                                    <div class="metadata-field" id="metadataToolsField" style="display: none;">
-                                        <span class="field-label">allowed-tools:</span>
-                                        <div class="field-value-chips" id="metadataTools"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Flow Arrow -->
-                        <div class="level-arrow">
-                            <div class="arrow-connector"></div>
-                            <div class="arrow-label">When Skill triggers on relevant context</div>
-                        </div>
-
-                        <!-- Level 2: Instructions -->
-                        <div class="level-card level-2" data-level="2">
-                            <div class="level-header">
-                                <div class="level-number">2</div>
-                                <div class="level-info">
-                                    <div class="level-title">INSTRUCTIONS</div>
-                                    <div class="level-timing">When Skill is triggered</div>
-                                </div>
-                                <div class="level-cost">&lt;5k tokens</div>
-                            </div>
-                            <div class="level-content">
-                                <div class="level-description">
-                                    SKILL.md body with procedural knowledge, workflows, and guidance
-                                </div>
-                                <div class="instructions-display">
-                                    <div class="file-item">
-                                        <span class="file-icon">📄</span>
-                                        <span class="file-name">SKILL.md</span>
-                                        <span class="file-meta" id="level2FileSize">-</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Flow Arrow -->
-                        <div class="level-arrow">
-                            <div class="arrow-connector"></div>
-                            <div class="arrow-label">As files are referenced or executed</div>
-                        </div>
-
-                        <!-- Level 3+: Resources -->
-                        <div class="level-card level-3" data-level="3">
-                            <div class="level-header">
-                                <div class="level-number">3+</div>
-                                <div class="level-info">
-                                    <div class="level-title">RESOURCES & CODE</div>
-                                    <div class="level-timing">Loaded as needed</div>
-                                </div>
-                                <div class="level-cost">Effectively unlimited</div>
-                            </div>
-                            <div class="level-content">
-                                <div class="level-description">
-                                    Additional markdown files, executable scripts, and reference materials
-                                </div>
-                                <div class="resources-display" id="resourcesDisplay">
-                                    <div class="resource-category" id="instructionsCategory" style="display: none;">
-                                        <div class="category-header">
-                                            <span class="category-icon">📝</span>
-                                            <span class="category-name">Instructions</span>
-                                            <span class="category-count" id="instructionsCount">0</span>
-                                        </div>
-                                        <div class="category-description">Additional markdown files with specialized guidance and workflows</div>
-                                        <div class="category-files" id="instructionsFiles"></div>
-                                    </div>
-                                    <div class="resource-category" id="codeCategory" style="display: none;">
-                                        <div class="category-header">
-                                            <span class="category-icon">💻</span>
-                                            <span class="category-name">Code</span>
-                                            <span class="category-count" id="codeCount">0</span>
-                                        </div>
-                                        <div class="category-description">Executable scripts that Claude runs via bash without loading into context</div>
-                                        <div class="category-files" id="codeFiles"></div>
-                                    </div>
-                                    <div class="resource-category" id="resourcesCategory" style="display: none;">
-                                        <div class="category-header">
-                                            <span class="category-icon">📋</span>
-                                            <span class="category-name">Resources</span>
-                                            <span class="category-count" id="resourcesCount">0</span>
-                                        </div>
-                                        <div class="category-description">Reference materials like schemas, API docs, templates, and examples</div>
-                                        <div class="category-files" id="resourcesFiles"></div>
-                                    </div>
-                                    <div class="empty-resources" id="emptyResources">
-                                        <span class="empty-icon">📭</span>
-                                        <span class="empty-text">No additional resources</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <div class="modal-meta">
-                    <span class="meta-item">
-                        <span class="meta-label">Total Files:</span>
-                        <span class="meta-value" id="modalFileCount">-</span>
-                    </span>
-                    <span class="meta-item">
-                        <span class="meta-label">Last Modified:</span>
-                        <span class="meta-value" id="modalLastModified">-</span>
-                    </span>
-                    <span class="meta-item">
-                        <span class="meta-label">Source:</span>
-                        <span class="meta-value" id="modalSource">-</span>
-                    </span>
-                </div>
+    <main class="main">
+        <div class="page-header">
+            <h2 id="page-title">All Skills & Plugins</h2>
+            <p id="page-subtitle">Everything installed in your Claude Code environment</p>
+        </div>
+        <div class="toolbar">
+            <div class="search">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search" placeholder="Search..." oninput="renderGrid()">
             </div>
         </div>
-    </div>
+        <div id="grid" class="grid">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                Loading your Claude Code environment...
+            </div>
+        </div>
+    </main>
+</div>
 
-    <script src="script.js"></script>
+<div class="toast" id="toast"></div>
+
+<script>
+let allItems = [];
+let activeType = 'all';
+
+const titles = {
+    all:     ['All Skills & Plugins', 'Everything installed in your Claude Code environment'],
+    skill:   ['Skills', 'Loaded automatically when relevant triggers are detected'],
+    agent:   ['Agents', 'Specialised subagents available via the Agent tool'],
+    command: ['Commands', 'Slash commands available in Claude Code'],
+    plugin:  ['Plugins', 'Installed Claude Code plugins — toggle to enable or disable'],
+};
+
+async function load() {
+    try {
+        const res = await fetch('/api/all');
+        const data = await res.json();
+        allItems = [...data.skills, ...data.agents, ...data.commands, ...data.plugins];
+        updateCounts();
+        renderGrid();
+    } catch (e) {
+        document.getElementById('grid').innerHTML = '<div class="empty">Failed to load. Make sure the server is running.</div>';
+    }
+}
+
+function updateCounts() {
+    document.getElementById('count-all').textContent = allItems.length;
+    ['skill','agent','command','plugin'].forEach(t => {
+        document.getElementById(`count-${t}`).textContent = allItems.filter(i => i.type === t).length;
+    });
+}
+
+function filterType(type) {
+    activeType = type;
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.type === type));
+    const [title, sub] = titles[type];
+    document.getElementById('page-title').textContent = title;
+    document.getElementById('page-subtitle').textContent = sub;
+    renderGrid();
+}
+
+function renderGrid() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const items = allItems
+        .filter(i => activeType === 'all' || i.type === activeType)
+        .filter(i => !q || i.name.toLowerCase().includes(q) || i.description.toLowerCase().includes(q));
+
+    if (!items.length) {
+        document.getElementById('grid').innerHTML = '<div class="empty">No items found.</div>';
+        return;
+    }
+
+    document.getElementById('grid').innerHTML = items.map(item => {
+        const typeLabel = item.type.charAt(0).toUpperCase() + item.type.slice(1);
+        const meta = item.fileCount ? `${item.fileCount} files`
+                   : item.scope    ? item.scope
+                   : item.version  ? `v${item.version}` : '';
+
+        const control = item.type === 'plugin'
+            ? `<label class="toggle" title="${item.active ? 'Disable' : 'Enable'}" onclick="event.stopPropagation()">
+                   <input type="checkbox" ${item.active ? 'checked' : ''} onchange="togglePlugin('${item.id}', this.checked)">
+                   <span class="toggle-track"></span>
+                   <span class="toggle-thumb"></span>
+               </label>`
+            : `<span style="font-size:0.75rem;color:#16a34a;font-weight:500;">● Active</span>`;
+
+        return `<div class="card">
+            <div class="card-top">
+                <span class="card-name">${item.name}</span>
+                <span class="badge badge-${item.type}">${typeLabel}</span>
+            </div>
+            <p class="card-desc">${item.description}</p>
+            <div class="card-footer">
+                <span class="card-meta">${meta}</span>
+                ${control}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+async function togglePlugin(name, enabled) {
+    try {
+        const res = await fetch(`/api/plugins/${encodeURIComponent(name)}/toggle`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled }),
+        });
+        const data = await res.json();
+        if (data.success) {
+            const item = allItems.find(i => i.id === name);
+            if (item) item.active = enabled;
+            showToast(`${name} ${enabled ? 'enabled' : 'disabled'}`);
+        }
+    } catch { showToast('Failed to update plugin'); }
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+load();
+</script>
 </body>
 </html>
